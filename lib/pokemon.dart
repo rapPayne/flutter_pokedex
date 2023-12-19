@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_pokedex/extensions/string_extensions.dart';
 import 'package:http/http.dart';
 import './types/pokemon.dart';
 
@@ -28,11 +29,17 @@ class _PokemonState extends State<Pokemon> {
 
   @override
   Widget build(BuildContext context) {
-    print("pokemon is " + (_pokemon?.name ?? "Loading, please wait"));
+    print("pokemon is ${(_pokemon?.name ?? 'Loading, please wait')}");
     return Scaffold(
-      body: const Text("Pokemon"),
+      body: Column(
+        children: [
+          Text(_pokemon?.name.toCapitalizeWords() ?? ""),
+        ],
+      ),
       appBar: AppBar(
-        title: Text(_pokemon?.name ?? "Loading, please wait"),
+        leading: Image.asset("pokemon_icon.png"),
+        title:
+            Text(_pokemon?.name.toCapitalizeWords() ?? "Loading, please wait"),
       ),
     );
   }

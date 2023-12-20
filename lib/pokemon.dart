@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/extensions/string_extensions.dart';
+import 'package:flutter_pokedex/pokemon_images.dart';
 import 'package:http/http.dart';
 import './types/pokemon.dart';
 
@@ -29,12 +30,20 @@ class _PokemonState extends State<Pokemon> {
 
   @override
   Widget build(BuildContext context) {
-    print("pokemon is ${(_pokemon?.name ?? 'Loading, please wait')}");
+    var sprites = _pokemon?.sprites;
     return Scaffold(
-      body: Column(
-        children: [
-          Text(_pokemon?.name.toCapitalizeWords() ?? ""),
-        ],
+      body: Center(
+        child: Column(
+          children: [
+            Text(_pokemon?.name.toCapitalizeWords() ?? ""),
+            sprites != null
+                ? PokemonImages(
+                    sprites: sprites,
+                  )
+                : Text("Loading..."),
+            Text("Stats go here")
+          ],
+        ),
       ),
       appBar: AppBar(
         leading: Image.asset("pokemon_icon.png"),

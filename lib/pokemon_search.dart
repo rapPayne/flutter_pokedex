@@ -70,8 +70,13 @@ class _PokemonSearchState extends State<PokemonSearch> {
 
   List<Map<String, PokemonChip>> _makeChips(List pokemons) {
     return pokemons
-        .map<Map<String, PokemonChip>>(
-            (p) => {p["name"]: PokemonChip(name: p["name"], url: p["url"])})
+        .map<Map<String, PokemonChip>>((p) => {
+              p["name"]: PokemonChip(
+                name: p["name"],
+                url: p["url"],
+                key: ValueKey(p["name"]),
+              )
+            })
         .toList();
   }
 }

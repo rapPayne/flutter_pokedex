@@ -13,12 +13,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
-        useMaterial3: true,
-      ),
-      home: const PokemonSearch(),
-    );
+        title: 'Flutter Pokedex',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+          useMaterial3: true,
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (_) => const PokemonSearch(),
+          '/pokemon-details': (_) => const Pokemon(),
+        });
   }
 }

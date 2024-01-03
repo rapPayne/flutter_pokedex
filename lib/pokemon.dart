@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_const_constructors
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/extensions/string_extensions.dart';
@@ -15,17 +14,22 @@ class Pokemon extends StatefulWidget {
 
 class _PokemonState extends State<Pokemon> {
   PokeApiResponse? _pokemon;
+  String url = '';
 
   @override
   void initState() {
-    Uri uri = Uri.parse('https://pokeapi.co/api/v2/pokemon/pikachu');
-    get(uri)
-        .then((res) => json.decode(res.body))
-        .then((json) => PokeApiResponse.fromJson(json))
-        .then((PokeApiResponse res) => setState(() {
-              _pokemon = res;
-            }));
     super.initState();
+    // PostFrameCallback needed b/c ModalRoute.of() can't be read in initState. But we must make the get() in initState. This method registers a callback to run after initState is complete.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map;
+      Uri uri = Uri.parse(args["url"]);
+      get(uri)
+          .then((res) => json.decode(res.body))
+          .then((json) => PokeApiResponse.fromJson(json))
+          .then((PokeApiResponse res) => setState(() {
+                _pokemon = res;
+              }));
+    });
   }
 
   @override
@@ -40,8 +44,8 @@ class _PokemonState extends State<Pokemon> {
                 ? PokemonImages(
                     sprites: sprites,
                   )
-                : Text("Loading..."),
-            Text("Stats go here")
+                : const Text("Loading..."),
+            const Text("Stats go here")
           ],
         ),
       ),
@@ -49,6 +53,12 @@ class _PokemonState extends State<Pokemon> {
         leading: Image.asset("pokemon_icon.png"),
         title:
             Text(_pokemon?.name.toCapitalizeWords() ?? "Loading, please wait"),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: const Icon(Icons.arrow_back),
       ),
     );
   }

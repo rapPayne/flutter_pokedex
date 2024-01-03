@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_pokedex/main.dart';
 import 'package:http/http.dart';
 
 class PokemonSearch extends StatefulWidget {
@@ -12,10 +13,10 @@ class PokemonSearch extends StatefulWidget {
 }
 
 class _PokemonSearchState extends State<PokemonSearch> {
-  List<Map<String, PokemonChip>> _allChips = [];
-  List<Map<String, PokemonChip>> _chipsToShow = [];
+  Map<String, PokemonChip> _allChips = {};
+  Map<String, PokemonChip> _chipsToShow = {};
   String _searchText = "";
-  Random _random = Random();
+  final Random _random = Random();
   Timer? _debounceTimer;
 
   @override
@@ -23,44 +24,60 @@ class _PokemonSearchState extends State<PokemonSearch> {
     Uri uri = Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=1500');
     get(uri)
         .then((res) => json.decode(res.body))
-        .then((res) => res["results"])
+        .then((res) => res["results"] as List<dynamic>)
         .then((pokemons) => setState(() {
-              _allChips = _makeChips(pokemons);
-              _chipsToShow = _allChips;
+              var transformed = pokemons
+                  .map((p) => p as Map)
+                  .map((p) => p as Map<String, dynamic>)
+                  .toList();
+              _allChips = _makeChips(transformed);
+              _chipsToShow = {..._allChips};
             }))
-        .then((foo) => print("Fetched ${_random.nextInt(1000)}"));
+        .then((foo) => debugPrint("Fetched ${_random.nextInt(1000)}"));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("Built ${_random.nextInt(1000)}");
+    debugPrint("Built ${_random.nextInt(1000)}");
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pokemon Lookup"),
       ),
       body: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
+          Text("${_allChips.length} pokemon found"),
           Text("${_chipsToShow.length} pokemon found"),
           TextField(onChanged: (val) {
             if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
             _debounceTimer = Timer(const Duration(milliseconds: 500), () {
               _searchText = val;
               RegExp re = RegExp(_searchText);
-              setState(() => _chipsToShow = _allChips
-                  .where((chip) => re.hasMatch(chip.keys.toList()[0]))
-                  .toList());
+              setState(() {
+                _chipsToShow.clear();
+                var matches = _allChips.entries
+                    .where((p) => re.hasMatch(p.key))
+                    .map((p) => MapEntry(p.key, p.value));
+                _chipsToShow.addEntries(matches);
+              });
             });
           }),
-          SizedBox(
-            height: 700.0,
-            child: SingleChildScrollView(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                children: _chipsToShow
-                    .map((chip) => chip.values.toList()[0])
-                    .toList(),
-              ),
+          Expanded(
+            // 1. Performance is terrible due to each build method rerendering
+            // child: SingleChildScrollView(
+            //   child: Wrap(
+            //       alignment: WrapAlignment.spaceBetween,
+            //       children: _chipsToShow.values.toList()),
+            // ),
+            // 2. Performance FTW! But lots of scrolling.
+            // child: ListView(
+            //   children: _chipsToShow.values.toList(),
+            // ),
+            // 3. Now less scrolling but still too much space between rows
+            child: GridView.extent(
+              maxCrossAxisExtent: 200.0,
+              children: _chipsToShow.values.toList(),
             ),
           ),
         ],
@@ -68,16 +85,13 @@ class _PokemonSearchState extends State<PokemonSearch> {
     );
   }
 
-  List<Map<String, PokemonChip>> _makeChips(List pokemons) {
-    return pokemons
-        .map<Map<String, PokemonChip>>((p) => {
-              p["name"]: PokemonChip(
-                name: p["name"],
-                url: p["url"],
-                key: ValueKey(p["name"]),
-              )
-            })
-        .toList();
+  Map<String, PokemonChip> _makeChips(List<Map<String, dynamic>> pokemons) {
+    Map<String, PokemonChip> chips = {};
+    for (var p in pokemons) {
+      chips[p["name"]] =
+          PokemonChip(name: p["name"], url: p["url"], key: ValueKey(p["name"]));
+    }
+    return chips;
   }
 }
 
@@ -92,17 +106,21 @@ class PokemonChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("Built a chip");
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextButton(
-        child: Text(
-          name,
-          style: const TextStyle(fontSize: 20.0),
+    debugPrint("Built a chip");
+    return Offstage(
+      offstage: false,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextButton(
+          child: Text(
+            name,
+            style: const TextStyle(fontSize: 20.0),
+          ),
+          onPressed: () {
+            Navigator.pushNamed(context, '/pokemon-details',
+                arguments: {"url": url});
+          },
         ),
-        onPressed: () {
-          print("You clicked $name $url");
-        },
       ),
     );
   }

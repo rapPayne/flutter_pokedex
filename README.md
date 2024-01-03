@@ -1,16 +1,11 @@
 # flutter_pokedex
 
-A new Flutter project.
+## Features
 
-## Getting Started
+### Flex widget
+### Expanded to avoid infinite width
+### ListView widget
+### GridView widget
+### Offstage widget
+Supposedly makes the widget sticky in memory so when it's brought back in, it doesn't need to be rebuilt. Can't seem to prove that out here.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.

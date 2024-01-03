@@ -22,13 +22,14 @@ class PokemonImages extends StatelessWidget {
         .map((sprite) => sprite.toString())
         .toList();
 
+    // ignore: sized_box_for_whitespace
     return Container(
       height: 200,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: images
             .map((sprite) => Container(
-                padding: EdgeInsets.only(left: 5, right: 5),
+                padding: const EdgeInsets.only(left: 5, right: 5),
                 child: Image.network(
                   sprite,
                   height: 200,

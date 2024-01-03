@@ -45,7 +45,11 @@ class _PokemonState extends State<Pokemon> {
                     sprites: sprites,
                   )
                 : const Text("Loading..."),
-            const Text("Stats go here")
+            const Text("Stats go here"),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: showStats(_pokemon?.stats),
+            ),
           ],
         ),
       ),
@@ -60,6 +64,25 @@ class _PokemonState extends State<Pokemon> {
         },
         child: const Icon(Icons.arrow_back),
       ),
+    );
+  }
+
+  Widget showStats(List<Stat>? stats) {
+    if (stats == null) return Container();
+    var textStyle = Theme.of(context).textTheme.titleLarge;
+    return Table(
+      children: [
+        TableRow(children: [
+          Text("Name", style: textStyle),
+          Text("Base stat", style: textStyle),
+          Text("Effort", style: textStyle),
+        ]),
+        ...stats.map((stat) => TableRow(children: [
+              Text(stat.stat.name),
+              Text(stat.baseStat.toString()),
+              Text(stat.effort.toString())
+            ]))
+      ],
     );
   }
 }
